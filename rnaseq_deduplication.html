@@ -1,0 +1,51 @@
+<html>
+    <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet"
+            href="https://fonts.googleapis.com/css?family=Poppins">
+    <style>
+        body {
+        font-family: 'Poppins', sans-serif;
+        font-size: 16px;
+        }
+    </style>
+    </head>
+    
+    <body>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+        <script>
+            mermaid.initialize({ startOnLoad: true });
+        </script>
+
+        <div style="padding: 10px auto; text-align: center;">
+        <h1><code>--with_umi</code> deduplication</h1>
+        <div class="mermaid" style="width: 100%; margin: 0 auto;  font-family: 'Poppins'">
+            graph TD 
+            A(STAR) -->|*.Aligned.out.bam| B
+            A -->|*.Aligned.toTranscriptome.out.bam| B
+            A2(HISAT2) -->|*.Aligned.out.bam| B2
+            B(samtools sort - coordinate)
+            B2(samtools sort - coordinate)
+            B -->|*.sorted.bam| C
+            B2 -->|*.sorted.bam| C2
+            B -->|*.transcriptome.sorted.bam| C
+            C(umi-tools dedup)
+            C2(umi-tools dedup)
+            C -->|*.umi_dedup.sorted.bam| E
+            C -. *.umi_dedup.sorted.bam .-> D
+            C -->|*.umi_dedup.transcriptome.bam| D
+            C -->|*.umi_dedup.transcriptome.bam| P
+            C2 -. *.umi_dedup.sorted.bam .-> P
+            D(samtools sort - name)
+            D -->|*.umi_dedup.transcriptome.sorted.bam| S
+            D -. *.umi_dedup.namesorted.bam .-> E
+            E(picard MarkDuplicates)
+            E -->|*.markdup.sorted.bam| F
+            F(featureCounts)
+            P(prepare-for-rsem.py)
+            P -->|*.umi_dedup.transcriptome.filtered.bam| R
+            R(RSEM)
+            S(salmon)   
+        </div></div>
+    </body>
+</html>
